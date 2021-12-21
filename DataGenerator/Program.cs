@@ -1,6 +1,7 @@
 ﻿using System;
 using static System.Console;
 using System.IO;
+using Npgsql;
 
 namespace DataGenerator
 {
