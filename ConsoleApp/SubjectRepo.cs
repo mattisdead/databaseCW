@@ -104,7 +104,7 @@ namespace ConsoleApp
             if (res == -1) return false;
             return true;
         }
-        public List<Subject> GetAll()
+        public List<Subject> GetAll() // not used
         {
             string command = "SELECT * FROM subjects";
             NpgsqlCommand cmd = new(command, connection);
@@ -121,20 +121,23 @@ namespace ConsoleApp
         }
         public Subject GetRandomSubject()
         {
+            Subject sub;
+            int lowerLim = GetFirstId() - 1;
+            Console.WriteLine(lowerLim);
+            
+            int upperLim = this.GetNewId();
+            Console.WriteLine(upperLim);
             Random r = new();
-            string command = $"SELECT * FROM subjects WHERE id = {r.Next(1, this.GetNewId())}";
-            NpgsqlCommand cmd = new(command, connection);
-
-            NpgsqlDataReader reader = cmd.ExecuteReader();
-            Subject sub = new();
-
-            if (reader.Read())
+            while (true)
             {
-                sub.id = reader.GetInt32(0);
-                sub.name = reader.GetString(1);
-                sub.teacherId = reader.GetInt32(2);
+                sub = this.GetById(r.Next(lowerLim, upperLim));
+                if (sub.name != null && sub.name != "")
+                {
+                    Console.WriteLine(sub.name);
+                    break;
+                }
+                Console.WriteLine("sub nope");
             }
-            reader.Close();
             return sub;
         }
         public int GetNewId()
@@ -151,6 +154,22 @@ namespace ConsoleApp
                 if (currId > id) id = currId;
             }
             id++;
+            reader.Close();
+            return id;
+        }
+        public int GetFirstId()
+        {
+            string command = $"SELECT * FROM subjects;";
+            NpgsqlCommand cmd = new(command, connection);
+
+            NpgsqlDataReader reader = cmd.ExecuteReader();
+
+            int id = -1;
+            while (reader.Read())
+            {
+                id = reader.GetInt32(0);
+                break;
+            }
             reader.Close();
             return id;
         }

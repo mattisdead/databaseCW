@@ -25,11 +25,17 @@ namespace ConsoleApp
             string command = ReadLine();
             if(command.Equals("Predict", StringComparison.InvariantCultureIgnoreCase))
             {
+                CreateCSVFromTable();
                 WriteLine("What is the id of the student?");
                 int studentId= 0; 
                 if(!int.TryParse(ReadLine(), out studentId))
                 {
                     WriteLine("Invalid id");
+                    return;
+                }
+                if(studentRepo.GetById(studentId).name == null)
+                {
+                    WriteLine("Sorry, this student doesn't exists.");
                     return;
                 }
 
@@ -40,6 +46,11 @@ namespace ConsoleApp
                     WriteLine("Invalid id");
                     return;
                 }
+                if (subjectRepo.GetById(subjectId).name == null)
+                {
+                    WriteLine("Sorry, this student doesn't exists.");
+                    return;
+                }
 
                 float predictedGrade = Analysis.AnalysisProgram.Predict(new Analysis.Grade()
                 { 
@@ -47,7 +58,6 @@ namespace ConsoleApp
                     subjectId = subjectId,
                     grade = 0
                 });
-
                 List<Grade> grades = gradeRepo.GetListOfGradesByStudentId(studentId);
                 List<Grade> lastTenGrades = new();
                 for (int i = grades.Count - 10; i < grades.Count; i++)
@@ -61,11 +71,11 @@ namespace ConsoleApp
                 {
                     doubleGrades.Add(grades[i].grade);
                 }
-                Graph.CreateGradeGraph(doubleGrades.ToArray(), "C:/Users/User/projects/databaseCW/data/actualGradesGraph.png");
+                Graph.CreateGradeGraph(doubleGrades.ToArray(), "..EntitiesData/actualGradesGraph.png");
 
 
                 doubleGrades.Add(predictedGrade);
-                Graph.CreateGradeGraph(doubleGrades.ToArray(), "C:/Users/User/projects/databaseCW/data/predictedGradesGraph.png");
+                Graph.CreateGradeGraph(doubleGrades.ToArray(), "..EntitiesData/predictedGradesGraph.png");
                 return;
             }
             else if(command.Equals("Log in", StringComparison.InvariantCultureIgnoreCase))
@@ -108,18 +118,61 @@ namespace ConsoleApp
                     StudentLogin.MainWindow(s);
                 }
             }
+            else if(command.Equals("Generate", StringComparison.InvariantCultureIgnoreCase))
+            {
+                WriteLine("How many entities would you like to generate?");
+                if(!int.TryParse(ReadLine(), out int number))
+                {
+                    WriteLine("Invalid input");
+                    return;
+                }
+                DataGen(number);
+            }
+            else if (command.Equals("Delete", StringComparison.InvariantCultureIgnoreCase))
+            {
+                WriteLine("What entities would you like to delete?");
+                string entity = ReadLine();
+
+                WriteLine("What is the id?");
+                if(!int.TryParse(ReadLine(), out int id))
+                {
+                    WriteLine("Invalid input");
+                    return;
+                }
+
+                try
+                {
+                    if (entity == "students")
+                    {
+                        studentRepo.DeleteById(id);
+                    }
+                    else if (entity == "teachers")
+                    {
+                        teacherRepo.DeleteById(id);
+                    }
+                    else if (command == "subjects")
+                    {
+                        subjectRepo.DeleteById(id);
+                    }
+                    else
+                    {
+                        WriteLine("Invalid input");
+                        return;
+                    }
+                }
+            }
         }
         static void DataGen(int number)
         {
-            for (int i = 0; i < number; i++)
+            WriteLine("What entities would you like to generate?");
+            string command = ReadLine();
+            
+            if (command == "students")
             {
-                WriteLine("What data would you like to generate?");
-                string command = ReadLine();
-
-                if (command == "students")
+                for (int i = 0; i < number; i++)
                 {
-                    string allNames = File.ReadAllText("../data/names.txt");
-                    string allSurnames = File.ReadAllText("../data/surnames.txt");
+                    string allNames = File.ReadAllText("C:/Users/User/projects/databaseCW/EntitiesData/names.txt");
+                    string allSurnames = File.ReadAllText("C:/Users/User/projects/databaseCW/EntitiesData/surnames.txt");
 
                     string[] arrNames = allNames.Split("\r\n");
                     string[] arrSurnames = allSurnames.Split("\r\n");
@@ -129,13 +182,15 @@ namespace ConsoleApp
                     string name = arrNames[r.Next(0, arrNames.Length)];
                     string surname = arrSurnames[r.Next(0, arrSurnames.Length)];
 
-                    WriteLine("Meet " + name + " " + surname + "!");
                     studentRepo.Insert(new Student(1, name, surname));
                 }
-                else if (command == "teachers")
+            }
+            else if (command == "teachers")
+            {
+                for (int i = 0; i < number; i++)
                 {
-                    string allNames = File.ReadAllText("../data/names.txt");
-                    string allSurnames = File.ReadAllText("../data/surnames.txt");
+                    string allNames = File.ReadAllText("C:/Users/User/projects/databaseCW//EntitiesData/names.txt");
+                    string allSurnames = File.ReadAllText("C:/Users/User/projects/databaseCW/EntitiesData/surnames.txt");
 
                     string[] arrNames = allNames.Split("\r\n");
                     string[] arrSurnames = allSurnames.Split("\r\n");
@@ -145,15 +200,17 @@ namespace ConsoleApp
                     string name = arrNames[r.Next(0, arrNames.Length)];
                     string surname = arrSurnames[r.Next(0, arrSurnames.Length)];
 
-                    WriteLine("Meet " + name + " " + surname + "!");
                     teacherRepo.Insert(new Teacher(1, name, surname));
                 }
-                else if (command == "grades")
+            }
+            else if (command == "grades")
+            {
+                for (int i = 0; i < number; i++)
                 {
-                    Random r = new Random();
+                    Random r = new();
 
                     int perc = r.Next(0, 101);
-                    int mark = -1;
+                    int mark;
 
                     if (perc < 10)
                     {
@@ -170,22 +227,29 @@ namespace ConsoleApp
 
                     gradeRepo.Insert(new Grade(mark, studentRepo.GetRandomStudent().id, subjectRepo.GetRandomSubject().id));
                 }
-                else if (command == "subjects")
+            }
+            else if (command == "subjects")
+            {
+                for (int i = 0; i < number; i++)
                 {
-                    string allSubjects = File.ReadAllText("../data/subjects.txt");
+                    string allSubjects = File.ReadAllText("C:/Users/User/projects/databaseCW/EntitiesData/subjects.txt");
                     string[] arrSubjects = allSubjects.Split("\r\n");
 
-                    Random r = new Random();
+                    Random r = new();
 
                     string subject = arrSubjects[r.Next(0, arrSubjects.Length)];
 
                     Teacher t = teacherRepo.GetRandomTeacher();
 
-                    WriteLine(subject);
-
                     subjectRepo.Insert(new Subject(0, subject, t.id));
                 }
             }
+            else
+            {
+                WriteLine("Invalid input");
+                return;
+            }
+            WriteLine("Done!");
         }
         static void CreateCSVFromTable()
         {
@@ -196,7 +260,7 @@ namespace ConsoleApp
                 csvtext += grades[i].studentId.ToString() + ',' + grades[i].subjectId.ToString() + ',' + grades[i].grade.ToString() + "\r\n";
                 if(i < 3) WriteLine(csvtext);
             }
-            File.WriteAllText("C:/Users/User/projects/databaseCW/Analysis/Data/GradesTableTrain.csv", csvtext);
+            File.WriteAllText("C:/Users/User/projects/databaseCW/Analysis/TrainingData/GradesTableTrain.csv", csvtext);
         }
     }
 }

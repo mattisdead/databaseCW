@@ -67,15 +67,15 @@ namespace ConsoleApp
 
             NpgsqlCommand cmd = new NpgsqlCommand(command, connection);
 
-            int res = cmd.ExecuteNonQuery();
-
             GradeRepo gradeRepo = new GradeRepo(connection);
             gradeRepo.DeleteByStudentId(id);
+
+            int res = cmd.ExecuteNonQuery();
 
             if (res == -1) return false;
             return true;
         }
-        public List<Student> GetAll()
+        public List<Student> GetAll() // not used
         {
             string command = "SELECT * FROM students";
             NpgsqlCommand cmd = new NpgsqlCommand(command, connection);
@@ -92,20 +92,17 @@ namespace ConsoleApp
         }
         public Student GetRandomStudent()
         {
-            Random r = new Random();
-            string command = $"SELECT * FROM students WHERE id = {r.Next(1, this.GetNewId())}";
-            NpgsqlCommand cmd = new NpgsqlCommand(command, connection);
-
-            NpgsqlDataReader reader = cmd.ExecuteReader();
-            Student st = new Student();
-
-            if (reader.Read())
+            Student st;
+            while (true)
             {
-                st.id = reader.GetInt32(2);
-                st.name = reader.GetString(0);
-                st.surname = reader.GetString(1);
+                Random r = new();
+                st = this.GetById(r.Next(GetFirstId() - 1, this.GetNewId()));
+                if (st.name != null)
+                {
+                    break;
+                }
+                Console.WriteLine("St nope");
             }
-            reader.Close();
             return st;
         }
         public int GetNewId()
@@ -122,6 +119,21 @@ namespace ConsoleApp
                 if (currId > id) id = currId;
             }
             id = id + 1;
+            reader.Close();
+            return id;
+        }
+        public int GetFirstId()
+        {
+            string command = $"SELECT * FROM students;";
+            NpgsqlCommand cmd = new NpgsqlCommand(command, connection);
+
+            NpgsqlDataReader reader = cmd.ExecuteReader();
+
+            int id = -1;
+            if (reader.Read())
+            {
+                id = reader.GetInt32(2);
+            }
             reader.Close();
             return id;
         }

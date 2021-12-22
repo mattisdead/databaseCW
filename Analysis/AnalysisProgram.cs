@@ -6,9 +6,9 @@ namespace Analysis
 {
     public class AnalysisProgram
     {
-        static readonly string _trainDataPath = "C:/Users/User/projects/databaseCW/Analysis/Data/GradesTableTrain.csv";
-        static readonly string _testDataPath = "C:/Users/User/projects/databaseCW/Analysis/Data/GradesTableTest.csv";
-        static readonly string _modelPath = "C:/Users/User/projects/databaseCW/Analysis/Data/Model.zip";
+        static readonly string _trainDataPath = "./TrainingData/GradesTableTrain.csv";
+        static readonly string _testDataPath = "./TrainingData/GradesTableTest.csv";
+        static readonly string _modelPath = "./Analysis/TrainingData/Model.zip";
         static void Main(string[] args)
         {
 

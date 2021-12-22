@@ -67,10 +67,10 @@ namespace ConsoleApp
 
             NpgsqlCommand cmd = new(command, connection);
 
-            int res = cmd.ExecuteNonQuery();
-
             SubjectRepo subjectRepo = new(connection);
             subjectRepo.DeleteByTeacherId(id);
+
+            int res = cmd.ExecuteNonQuery();
 
             if (res == -1) return false;
             return true;
@@ -92,21 +92,33 @@ namespace ConsoleApp
         }
         public Teacher GetRandomTeacher()
         {
-            Random r = new();
-            string command = $"SELECT * FROM teachers WHERE id = {r.Next(1, this.GetNewId())}";
-            NpgsqlCommand cmd = new(command, connection);
+            Teacher t;
+            while (true)
+            {
+                Random r = new();
+                t = this.GetById(r.Next(GetFirstId() - 1, this.GetNewId()));
+                if (t.name != null)
+                {
+                    break;
+                }
+                Console.WriteLine("T nope");
+            }
+            return t;
+        }
+        public int GetFirstId()
+        {
+            string command = $"SELECT * FROM teachers;";
+            NpgsqlCommand cmd = new NpgsqlCommand(command, connection);
 
             NpgsqlDataReader reader = cmd.ExecuteReader();
-            Teacher teacher = new();
 
+            int id = -1;
             if (reader.Read())
             {
-                teacher.id = reader.GetInt32(0);
-                teacher.name = reader.GetString(1);
-                teacher.surname = reader.GetString(2);
+                id = reader.GetInt32(0);
             }
             reader.Close();
-            return teacher;
+            return id;
         }
         public int GetNewId()
         {
