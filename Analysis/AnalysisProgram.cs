@@ -6,11 +6,11 @@ namespace Analysis
 {
     public class AnalysisProgram
     {
-        static readonly string _trainDataPath = "./TrainingData/GradesTableTrain.csv";
-        static readonly string _testDataPath = "./TrainingData/GradesTableTest.csv";
-        static readonly string _modelPath = "./Analysis/TrainingData/Model.zip";
+        static readonly string _trainDataPath = "C:/Users/User/projects/databaseCW/Analysis/TrainingData/GradesTableTrain.csv";
+        static readonly string _testDataPath = "C:/Users/User/projects/databaseCW/Analysis/TrainingData/GradesTableTest.csv";
+        static readonly string _modelPath = "C:/Users/User/projects/databaseCW/Analysis/Analysis/TrainingData/Model.zip";
         static void Main(string[] args)
-        {
+        { 
 
         }
         public static float Predict(Grade gradeSample)

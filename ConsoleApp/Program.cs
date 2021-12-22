@@ -14,7 +14,7 @@ namespace ConsoleApp
         static GradeRepo gradeRepo;
         static void Main(string[] args)
         {
-            NpgsqlConnection conn = new NpgsqlConnection("Server=localhost;Port=5432;Database=cwdb;User Id=postgres;Password=wake up call;");
+            NpgsqlConnection conn = new NpgsqlConnection("Server=localhost;Port=5432;Database=cwdb;User Id=postgres;Password=wakeupcall;");
             conn.Open();
             studentRepo = new StudentRepo(conn);
             teacherRepo = new TeacherRepo(conn);
@@ -62,7 +62,15 @@ namespace ConsoleApp
                 List<Grade> lastTenGrades = new();
                 for (int i = grades.Count - 10; i < grades.Count; i++)
                 {
-                    lastTenGrades.Add(grades[i]);
+                    try
+                    {
+                        lastTenGrades.Add(grades[i]);
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                    
                 }
 
                 List<double> doubleGrades = new();
@@ -71,11 +79,17 @@ namespace ConsoleApp
                 {
                     doubleGrades.Add(grades[i].grade);
                 }
-                Graph.CreateGradeGraph(doubleGrades.ToArray(), "..EntitiesData/actualGradesGraph.png");
+                try
+                {
+                     Graph.CreateGradeGraph(doubleGrades.ToArray(), "..EntitiesData/actualGradesGraph.png");
+                    doubleGrades.Add(predictedGrade);
+                        Graph.CreateGradeGraph(doubleGrades.ToArray(), "..EntitiesData/predictedGradesGraph.png");
+                }
+                catch (Exception ex)
+                {
 
+                }
 
-                doubleGrades.Add(predictedGrade);
-                Graph.CreateGradeGraph(doubleGrades.ToArray(), "..EntitiesData/predictedGradesGraph.png");
                 return;
             }
             else if(command.Equals("Log in", StringComparison.InvariantCultureIgnoreCase))
@@ -140,8 +154,7 @@ namespace ConsoleApp
                     return;
                 }
 
-                try
-                {
+                
                     if (entity == "students")
                     {
                         studentRepo.DeleteById(id);
@@ -159,7 +172,7 @@ namespace ConsoleApp
                         WriteLine("Invalid input");
                         return;
                     }
-                }
+               
             }
         }
         static void DataGen(int number)
@@ -258,7 +271,6 @@ namespace ConsoleApp
             for (int i=0; i < grades.Count; i++)
             {
                 csvtext += grades[i].studentId.ToString() + ',' + grades[i].subjectId.ToString() + ',' + grades[i].grade.ToString() + "\r\n";
-                if(i < 3) WriteLine(csvtext);
             }
             File.WriteAllText("C:/Users/User/projects/databaseCW/Analysis/TrainingData/GradesTableTrain.csv", csvtext);
         }

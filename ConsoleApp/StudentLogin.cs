@@ -16,7 +16,7 @@ namespace ConsoleApp
         public static void MainWindow(Student student)
         {
             user = student;
-            connection = new NpgsqlConnection("Server=localhost;Port=5432;Database=cwdb;User Id=postgres;Password=wake up call;");
+            connection = new NpgsqlConnection("Server=localhost;Port=5432;Database=cwdb;User Id=postgres;Password=wakeupcall;");
             connection.Open();
             studentRepo = new StudentRepo(connection);
             teacherRepo = new TeacherRepo(connection);
